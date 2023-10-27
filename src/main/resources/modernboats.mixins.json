@@ -4,7 +4,8 @@
   "package": "useless.modernboats.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "EntityBoatMixin"
+    "EntityBoatMixin",
+    "PacketMixin"
   ],
   "client": [
   ],
