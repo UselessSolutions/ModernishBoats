@@ -18,11 +18,11 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-        "useless.examplemod.ExampleMod"
+			"useless.examplemod.ModernBoats"
     ]
   },
   "mixins": [
-      "examplemod.mixins.json"
+		"modernboats.mixins.json"
   ],
 
   "depends": {
