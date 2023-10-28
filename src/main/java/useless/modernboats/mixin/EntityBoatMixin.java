@@ -130,14 +130,16 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 
 			setBoatControls(newAngle, velocity);
 			if (world.isClientSide){
-				Minecraft.getMinecraft(Minecraft.class).getSendQueue().addToSendQueue(new PacketBoatMovement(newAngle, velocity));
+				double nextXd = xd;
+				double nextZd = zd;
+				nextXd = bindToRange(nextXd, -maxSpeed, maxSpeed);
+				nextZd = bindToRange(nextZd, -maxSpeed, maxSpeed);
+				if (this.onGround) {
+					nextXd *= 0.5;
+					nextZd *= 0.5;
+				}
+				Minecraft.getMinecraft(Minecraft.class).getSendQueue().addToSendQueue(new PacketBoatMovement(newAngle, velocity, this.x + nextXd, this.z + nextZd));
 			}
-		}
-
-		if (world.isClientSide) {
-			clientSideTick();
-			ci.cancel();
-			return;
 		}
 
 		// buoyancy calculations
@@ -212,16 +214,6 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 		ci.cancel();
 	}
 	@Unique
-	public double constrainAngle(double angle){
-		while (angle >= 180){
-			angle -= 360;
-		}
-		while (angle < -180){
-			angle += 360;
-		}
-		return angle;
-	}
-	@Unique
 	public double getPercentageSubmerged(int sliceAmount){
 		double percentageSubmerged = 0d;
 		for (int i = 0; i < sliceAmount; ++i) {
@@ -236,25 +228,5 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 	@Unique
 	public double bindToRange(double input, double minVal, double maxVal){
 		return Math.min(Math.max(input, minVal), maxVal);
-	}
-	@Unique
-	public void clientSideTick(){
-		if (this.field_9394_d > 0) {
-			double newX = this.x + (this.field_9393_e - this.x) / (double)this.field_9394_d;
-			double newY = this.y + (this.field_9392_f - this.y) / (double)this.field_9394_d;
-			double newZ = this.z + (this.field_9391_g - this.z) / (double)this.field_9394_d;
-			--this.field_9394_d;
-			this.setPos(newX, newY, newZ);
-		} else {
-			this.setPos(this.x + this.xd, this.y + this.yd, this.z + this.zd);
-			if (this.onGround) {
-				this.xd *= 0.5;
-				this.yd *= 0.5;
-				this.zd *= 0.5;
-			}
-			this.xd *= 0.99f;
-			this.yd *= 0.95f;
-			this.zd *= 0.99f;
-		}
 	}
 }
