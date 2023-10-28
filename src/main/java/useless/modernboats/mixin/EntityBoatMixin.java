@@ -52,7 +52,17 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 	@Unique
 	private final double backwardsMaxSpeed = 0.4;
 	@Unique
+	private double velocity = 0;
+	@Unique
+	private final double accelerationForwards = 0.005;
+	@Unique
+	private final double accelerationBackwards = accelerationForwards/2;
+	@Unique
 	private final float maxRotationSpeed = 8;
+	@Unique
+	private float rotationVelocity = 0;
+	@Unique
+	private final float rotationAcceleration = 4;
 
 	public EntityBoatMixin(World world) {
 		super(world);
@@ -71,7 +81,6 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 	}
 	@Inject(method = "tick()V", at = @At("HEAD"), cancellable = true)
 	public void tickCustom(CallbackInfo ci) {
-		double deltaYRot;
 		super.tick();
 
 		// Tick Attack Timers
@@ -91,15 +100,37 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 		// Default boat controls
 		if (this.passenger != null && passenger instanceof EntityPlayerSP && !Global.isServer) {
 			Input passangerInput = ((EntityPlayerSP)passenger).input;
-			//double newVelocity = Math.s
-			float newAngle = yRot;
-			double newVelocity = -passangerInput.moveForward * maxSpeed;
+			velocity = bindToRange(velocity, -maxSpeed, backwardsMaxSpeed);
 
-			newAngle -= maxRotationSpeed * passangerInput.moveStrafe;
+			if (Math.abs(passangerInput.moveStrafe) > 0.1f){
+				rotationVelocity -= rotationAcceleration * passangerInput.moveStrafe;
+				velocity *= .95;
+			} else {
+				rotationVelocity *= 0.5;
+				if (Math.abs(rotationVelocity) < 0.5){
+					rotationVelocity = 0;
+				}
+			}
 
-			setBoatControls(newAngle, newVelocity);
+			rotationVelocity = (float) bindToRange(rotationVelocity, -maxRotationSpeed, maxRotationSpeed);
+
+			float newAngle = yRot + rotationVelocity;
+
+
+			if (passangerInput.moveForward > 0.1f){
+				velocity += -passangerInput.moveForward * accelerationForwards;
+			} else if (passangerInput.moveForward < -0.1f){
+				velocity += -passangerInput.moveForward * accelerationBackwards;
+			} else {
+				velocity *= 0.8;
+				if (Math.abs(velocity) < 0.005){
+					velocity = 0;
+				}
+			}
+
+			setBoatControls(newAngle, velocity);
 			if (world.isClientSide){
-				Minecraft.getMinecraft(Minecraft.class).getSendQueue().addToSendQueue(new PacketBoatMovement(newAngle, newVelocity));
+				Minecraft.getMinecraft(Minecraft.class).getSendQueue().addToSendQueue(new PacketBoatMovement(newAngle, velocity));
 			}
 		}
 
@@ -157,19 +188,6 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 		this.xd *= 0.99f;
 		this.yd *= 0.95f;
 		this.zd *= 0.99f;
-//		this.xRot = 0.0f;
-//		double newYRot = this.yRot;
-//		double deltaX = this.xo - this.x;
-//		double deltaZ = this.zo - this.z;
-//		if (deltaX * deltaX + deltaZ * deltaZ > 0.001) {
-//			newYRot = (float)(Math.toDegrees(Math.atan2(deltaZ, deltaX)));
-//		}
-//
-//		deltaYRot = newYRot - (double)this.yRot;
-//		deltaYRot = constrainAngle(deltaYRot);
-//		deltaYRot = bindToRange(deltaYRot, -20, 20); // Restrict angle rate of change??
-//		this.yRot = (float)((double)this.yRot + deltaYRot);
-//		this.setRot(this.yRot, this.xRot);
 
 		List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.bb.expand(0.2f, 0.0, 0.2f));
 		if (list != null && list.size() > 0) {
@@ -225,13 +243,8 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 			double newX = this.x + (this.field_9393_e - this.x) / (double)this.field_9394_d;
 			double newY = this.y + (this.field_9392_f - this.y) / (double)this.field_9394_d;
 			double newZ = this.z + (this.field_9391_g - this.z) / (double)this.field_9394_d;
-//			double deltaYRot = this.field_9390_h - (double)this.yRot;
-//			deltaYRot = constrainAngle(deltaYRot);
-//			this.yRot = (float)((double)this.yRot + deltaYRot / (double)this.field_9394_d);
-//			this.xRot = (float)((double)this.xRot + (this.boatPitch - (double)this.xRot) / (double)this.field_9394_d);
 			--this.field_9394_d;
 			this.setPos(newX, newY, newZ);
-//			this.setRot(this.yRot, this.xRot);
 		} else {
 			this.setPos(this.x + this.xd, this.y + this.yd, this.z + this.zd);
 			if (this.onGround) {
