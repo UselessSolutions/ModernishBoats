@@ -26,27 +26,8 @@ import java.util.List;
 public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 	@Shadow
 	public int boatTimeSinceHit;
-
 	@Shadow
 	public int boatCurrentDamage;
-
-	@Shadow
-	private int field_9394_d;
-
-	@Shadow
-	private double field_9393_e;
-
-	@Shadow
-	private double field_9392_f;
-
-	@Shadow
-	private double field_9391_g;
-
-	@Shadow
-	private double field_9390_h;
-
-	@Shadow
-	private double boatPitch;
 	@Unique
 	private final double maxSpeed = 0.8;
 	@Unique
@@ -122,7 +103,7 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 			} else if (passangerInput.moveForward < -0.1f){
 				velocity += -passangerInput.moveForward * accelerationBackwards;
 			} else {
-				velocity *= 0.8;
+				velocity *= 0.85;
 				if (Math.abs(velocity) < 0.005){
 					velocity = 0;
 				}
@@ -130,15 +111,7 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 
 			setBoatControls(newAngle, velocity);
 			if (world.isClientSide){
-				double nextXd = xd;
-				double nextZd = zd;
-				nextXd = bindToRange(nextXd, -maxSpeed, maxSpeed);
-				nextZd = bindToRange(nextZd, -maxSpeed, maxSpeed);
-				if (this.onGround) {
-					nextXd *= 0.5;
-					nextZd *= 0.5;
-				}
-				Minecraft.getMinecraft(Minecraft.class).getSendQueue().addToSendQueue(new PacketBoatMovement(newAngle, velocity, this.x + nextXd, this.z + nextZd));
+				Minecraft.getMinecraft(Minecraft.class).getSendQueue().addToSendQueue(new PacketBoatMovement(newAngle, velocity));
 			}
 		}
 

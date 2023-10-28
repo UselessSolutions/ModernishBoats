@@ -18,13 +18,6 @@ public abstract class NetServerHandlerMixin implements ICustomPackets {
 		if (playerEntity.vehicle != null && playerEntity.vehicle instanceof EntityBoat){
 			IBoatExtras boat = (IBoatExtras) playerEntity.vehicle;
 			boat.setBoatControls(packet.boatYRot, packet.velocity);
-			EntityBoat eBoat = (EntityBoat) playerEntity.vehicle;
-			if (Math.abs(packet.xPos - eBoat.x) > 0.5){
-				eBoat.x = packet.xPos;
-			}
-			if (Math.abs(packet.zPos - eBoat.z) > 0.5){
-				eBoat.z = packet.zPos;
-			}
 		}
 	}
 }
