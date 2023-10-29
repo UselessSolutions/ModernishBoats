@@ -6,8 +6,7 @@
   "mixins": [
     "EntityBoatMixin",
     "NetHandlerMixin",
-    "NetServerHandlerMixin",
-    "PacketMixin"
+    "NetServerHandlerMixin"
   ],
   "client": [
   ],
