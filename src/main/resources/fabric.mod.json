@@ -19,7 +19,10 @@
   "entrypoints": {
     "main": [
 			"useless.modernboats.ModernBoats"
-    ]
+    ],
+		"afterGameStart": [
+			"useless.modernboats.ModernBoats"
+		]
   },
   "mixins": [
 		"modernboats.mixins.json"

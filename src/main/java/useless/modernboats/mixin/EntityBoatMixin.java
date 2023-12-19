@@ -1,6 +1,5 @@
 package useless.modernboats.mixin;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.EntityPlayerSP;
 import net.minecraft.client.input.PlayerInput;
 import net.minecraft.core.Global;
@@ -17,6 +16,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import useless.modernboats.ModernBoatsClient;
 import useless.modernboats.PacketBoatMovement;
 import useless.modernboats.interfaces.IBoatExtras;
 
@@ -87,7 +87,7 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 				rotationVelocity -= rotationAcceleration * passangerInput.moveStrafe;
 				velocity *= .95;
 			} else {
-				rotationVelocity *= 0.5;
+				rotationVelocity *= 0.5F;
 				if (Math.abs(rotationVelocity) < 0.5){
 					rotationVelocity = 0;
 				}
@@ -111,7 +111,7 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 
 			setBoatControls(newAngle, velocity);
 			if (world.isClientSide){
-				Minecraft.getMinecraft(Minecraft.class).getSendQueue().addToSendQueue(new PacketBoatMovement(newAngle, velocity));
+				ModernBoatsClient.addToSendQueue(new PacketBoatMovement(newAngle, velocity));
 			}
 		}
 
@@ -165,7 +165,7 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 		this.zd *= 0.99f;
 
 		List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.bb.expand(0.2f, 0.0, 0.2f));
-		if (list != null && list.size() > 0) {
+		if (list != null && !list.isEmpty()) {
 			for (Entity entity : list) {
 				if (entity == this.passenger || !entity.isPushable() || !(entity instanceof EntityBoat)) continue;
 				entity.push(this);
