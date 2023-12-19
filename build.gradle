@@ -14,6 +14,9 @@ loom {
 }
 
 repositories {
+	flatDir {
+		dir "/lib"
+	}
 	mavenCentral()
 	maven { url = "https://jitpack.io" }
 	maven {

@@ -2,7 +2,7 @@ package useless.modernboats.mixin;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.EntityPlayerSP;
-import net.minecraft.client.input.Input;
+import net.minecraft.client.input.PlayerInput;
 import net.minecraft.core.Global;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.material.Material;
@@ -80,7 +80,7 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 
 		// Default boat controls
 		if (this.passenger != null && passenger instanceof EntityPlayerSP && !Global.isServer) {
-			Input passangerInput = ((EntityPlayerSP)passenger).input;
+			PlayerInput passangerInput = ((EntityPlayerSP)passenger).input;
 			velocity = bindToRange(velocity, -maxSpeed, backwardsMaxSpeed);
 
 			if (Math.abs(passangerInput.moveStrafe) > 0.1f){
