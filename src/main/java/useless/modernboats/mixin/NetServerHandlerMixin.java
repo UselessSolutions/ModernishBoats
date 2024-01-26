@@ -17,7 +17,7 @@ public abstract class NetServerHandlerMixin implements ICustomPackets {
 	public void handleBoatMovement(PacketBoatMovement packet) {
 		if (playerEntity.vehicle != null && playerEntity.vehicle instanceof EntityBoat){
 			IBoatExtras boat = (IBoatExtras) playerEntity.vehicle;
-			boat.setBoatControls(packet.boatYRot, packet.velocity);
+			boat.modernishBoats$setBoatControls(packet.boatYRot, packet.velocity);
 		}
 	}
 }

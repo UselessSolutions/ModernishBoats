@@ -1,8 +1,7 @@
 package useless.modernboats.mixin;
 
-import net.minecraft.client.entity.player.EntityPlayerSP;
-import net.minecraft.client.input.PlayerInput;
-import net.minecraft.core.Global;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.material.Material;
 import net.minecraft.core.entity.Entity;
@@ -16,14 +15,12 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import useless.modernboats.ModernBoatsClient;
-import useless.modernboats.PacketBoatMovement;
 import useless.modernboats.interfaces.IBoatExtras;
 
 import java.util.List;
-
+@Environment(EnvType.SERVER)
 @Mixin(value = EntityBoat.class, remap = false)
-public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
+public abstract class EntityBoatMixinServer extends Entity implements IBoatExtras {
 	@Shadow
 	public int boatTimeSinceHit;
 	@Shadow
@@ -32,24 +29,12 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 	private final double maxSpeed = 0.8;
 	@Unique
 	private final double backwardsMaxSpeed = 0.4;
-	@Unique
-	private double velocity = 0;
-	@Unique
-	private final double accelerationForwards = 0.005;
-	@Unique
-	private final double accelerationBackwards = accelerationForwards/2;
-	@Unique
-	private final float maxRotationSpeed = 8;
-	@Unique
-	private float rotationVelocity = 0;
-	@Unique
-	private final float rotationAcceleration = 4;
 
-	public EntityBoatMixin(World world) {
+	public EntityBoatMixinServer(World world) {
 		super(world);
 	}
 	@Unique
-	public void setBoatControls(float yRot, double velocity){
+	public void modernishBoats$setBoatControls(float yRot, double velocity){
 		setRot(yRot, this.xRot);
 		velocity = bindToRange(velocity, -maxSpeed, backwardsMaxSpeed);
 
@@ -77,43 +62,6 @@ public abstract class EntityBoatMixin extends Entity implements IBoatExtras {
 		this.zo = this.z;
 
 		double percentageSubmerged = getPercentageSubmerged(5);
-
-		// Default boat controls
-		if (this.passenger != null && passenger instanceof EntityPlayerSP && !Global.isServer) {
-			PlayerInput passangerInput = ((EntityPlayerSP)passenger).input;
-			velocity = bindToRange(velocity, -maxSpeed, backwardsMaxSpeed);
-
-			if (Math.abs(passangerInput.moveStrafe) > 0.1f){
-				rotationVelocity -= rotationAcceleration * passangerInput.moveStrafe;
-				velocity *= .95;
-			} else {
-				rotationVelocity *= 0.5F;
-				if (Math.abs(rotationVelocity) < 0.5){
-					rotationVelocity = 0;
-				}
-			}
-
-			rotationVelocity = (float) bindToRange(rotationVelocity, -maxRotationSpeed, maxRotationSpeed);
-
-			float newAngle = yRot + rotationVelocity;
-
-
-			if (passangerInput.moveForward > 0.1f){
-				velocity += -passangerInput.moveForward * accelerationForwards;
-			} else if (passangerInput.moveForward < -0.1f){
-				velocity += -passangerInput.moveForward * accelerationBackwards;
-			} else {
-				velocity *= 0.85;
-				if (Math.abs(velocity) < 0.005){
-					velocity = 0;
-				}
-			}
-
-			setBoatControls(newAngle, velocity);
-			if (world.isClientSide){
-				ModernBoatsClient.addToSendQueue(new PacketBoatMovement(newAngle, velocity));
-			}
-		}
 
 		// buoyancy calculations
 		if (percentageSubmerged < 1.0) {

@@ -4,11 +4,14 @@
   "package": "useless.modernboats.mixin",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
-    "EntityBoatMixin",
     "NetHandlerMixin",
     "NetServerHandlerMixin"
   ],
   "client": [
+    "EntityBoatMixinClient"
+  ],
+  "server": [
+    "EntityBoatMixinServer"
   ],
   "injectors": {
     "defaultRequire": 1
